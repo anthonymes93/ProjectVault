@@ -219,6 +219,7 @@ export function ImportProjects() {
             localFolderPath: row.localFolderPath.trim(),
             githubRepoUrl: row.githubRepoUrl.trim(),
             liveUrl: row.liveUrl.trim(),
+            firebaseUrl: '',
             chatGptLinks: [],
             documentationLinks: [],
             notes: '',

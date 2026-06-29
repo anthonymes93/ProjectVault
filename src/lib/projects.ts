@@ -26,6 +26,7 @@ function docToProject(id: string, data: Record<string, unknown>): Project {
     localFolderPath: (data.localFolderPath as string) ?? '',
     githubRepoUrl: (data.githubRepoUrl as string) ?? '',
     liveUrl: (data.liveUrl as string) ?? '',
+    firebaseUrl: (data.firebaseUrl as string) ?? '',
     chatGptLinks: (data.chatGptLinks as string[]) ?? [],
     documentationLinks: (data.documentationLinks as string[]) ?? [],
     notes: (data.notes as string) ?? '',

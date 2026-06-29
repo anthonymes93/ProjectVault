@@ -73,6 +73,7 @@ export function QuickAddModal() {
         localFolderPath: form.localFolderPath.trim(),
         githubRepoUrl: form.githubRepoUrl.trim(),
         liveUrl: form.liveUrl.trim(),
+        firebaseUrl: '',
         chatGptLinks: [],
         documentationLinks: [],
         notes: '',
