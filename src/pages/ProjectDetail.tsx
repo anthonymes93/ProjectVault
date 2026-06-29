@@ -196,6 +196,12 @@ export function ProjectDetail() {
             </Section>
           )}
 
+          {project.firebaseUrl && (
+            <Section title="Firebase">
+              <ExternalLink href={project.firebaseUrl} label="Firebase Console" />
+            </Section>
+          )}
+
           {project.chatGptLinks.length > 0 && (
             <Section title="ChatGPT Conversations">
               <div className="space-y-1.5">

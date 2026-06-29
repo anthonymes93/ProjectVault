@@ -18,6 +18,7 @@ export interface Project {
   localFolderPath: string
   githubRepoUrl: string
   liveUrl: string
+  firebaseUrl: string
   chatGptLinks: string[]
   documentationLinks: string[]
   notes: string

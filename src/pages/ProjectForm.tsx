@@ -11,6 +11,7 @@ const BLANK: Omit<ProjectInput, 'lastOpened'> = {
   localFolderPath: '',
   githubRepoUrl: '',
   liveUrl: '',
+  firebaseUrl: '',
   chatGptLinks: [''],
   documentationLinks: [''],
   notes: '',
@@ -150,6 +151,7 @@ export function ProjectForm() {
           localFolderPath: p.localFolderPath,
           githubRepoUrl: p.githubRepoUrl,
           liveUrl: p.liveUrl,
+          firebaseUrl: p.firebaseUrl ?? '',
           chatGptLinks: p.chatGptLinks.length ? p.chatGptLinks : [''],
           documentationLinks: p.documentationLinks.length ? p.documentationLinks : [''],
           notes: p.notes,
@@ -299,6 +301,15 @@ export function ProjectForm() {
               value={form.liveUrl}
               onChange={(e) => set('liveUrl', e.target.value)}
               placeholder="https://myproject.vercel.app"
+            />
+          </FieldRow>
+
+          <FieldRow label="Firebase URL">
+            <input
+              className="input"
+              value={form.firebaseUrl}
+              onChange={(e) => set('firebaseUrl', e.target.value)}
+              placeholder="https://console.firebase.google.com/project/..."
             />
           </FieldRow>
 
