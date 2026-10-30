@@ -15,6 +15,7 @@ import {
   writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { requireUserId } from './auth'
 import type { Project, ProjectInput, ProjectStatus, ProjectCounts } from './types'
 
 const COL = 'projects'
@@ -43,9 +44,9 @@ function docToProject(id: string, data: Record<string, unknown>): Project {
 
 // Full collection scan — used by All Projects page only.
 export async function getProjects(): Promise<Project[]> {
-  const q = query(collection(db, COL), orderBy('lastUpdated', 'desc'))
+  const q = query(collection(db, COL), where('ownerUid', '==', requireUserId()))
   const snap = await getDocs(q)
-  return snap.docs.map((d) => docToProject(d.id, d.data()))
+  return snap.docs.map((d) => docToProject(d.id, d.data())).sort((a, b) => b.lastUpdated.toMillis() - a.lastUpdated.toMillis())
 }
 
 // Targeted query for Command Center — fetches only active/growth/watchlist.
@@ -56,8 +57,7 @@ export const FOCUS_STATUSES: ProjectStatus[] = ['active', 'growth', 'watchlist']
 export async function getFocusedProjects(): Promise<Project[]> {
   const q = query(
     collection(db, COL),
-    where('status', 'in', FOCUS_STATUSES),
-    orderBy('lastUpdated', 'desc')
+    where('ownerUid', '==', requireUserId())
   )
   const snap = await getDocs(q)
   return snap.docs.map((d) => docToProject(d.id, d.data()))
@@ -66,24 +66,27 @@ export async function getFocusedProjects(): Promise<Project[]> {
 // Server-side aggregate counts — no documents downloaded.
 export async function getProjectCounts(): Promise<ProjectCounts> {
   const [totalSnap, archivedSnap] = await Promise.all([
-    getCountFromServer(collection(db, COL)),
-    getCountFromServer(query(collection(db, COL), where('status', '==', 'archived'))),
+    getCountFromServer(query(collection(db, COL), where('ownerUid', '==', requireUserId()))),
+    getCountFromServer(query(collection(db, COL), where('ownerUid', '==', requireUserId()))),
   ])
   return {
     total: totalSnap.data().count,
-    archived: archivedSnap.data().count,
+    archived: (await getDocs(query(collection(db, COL), where('ownerUid', '==', requireUserId())))).docs.filter(d => d.data().status === 'archived').length,
   }
 }
 
 export async function getProject(id: string): Promise<Project | null> {
+  requireUserId()
   const snap = await getDoc(doc(db, COL, id))
   if (!snap.exists()) return null
+  if (snap.data().ownerUid !== requireUserId()) return null
   return docToProject(snap.id, snap.data())
 }
 
 export async function createProject(input: ProjectInput): Promise<string> {
   const ref = await addDoc(collection(db, COL), {
     ...input,
+    ownerUid: requireUserId(),
     lastUpdated: serverTimestamp(),
     createdAt: serverTimestamp(),
   })
@@ -91,6 +94,7 @@ export async function createProject(input: ProjectInput): Promise<string> {
 }
 
 export async function updateProject(id: string, input: Partial<ProjectInput>): Promise<void> {
+  requireUserId()
   await updateDoc(doc(db, COL, id), {
     ...input,
     lastUpdated: serverTimestamp(),
@@ -98,6 +102,7 @@ export async function updateProject(id: string, input: Partial<ProjectInput>): P
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  requireUserId()
   // Firestore does not cascade subcollections when deleting a parent document.
   const files = await getDocs(collection(db, COL, id, 'files'))
   for (let i = 0; i < files.docs.length; i += 450) {
