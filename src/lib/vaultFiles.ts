@@ -67,7 +67,7 @@ export function downloadVaultFile(file: VaultFile): void {
   if (file.binary) {
     const chars = atob(file.content)
     const bytes = Uint8Array.from(chars, char => char.charCodeAt(0))
-    blob = new Blob([bytes], { type: file.mime })
+    blob = new Blob([bytes.buffer as ArrayBuffer], { type: file.mime })
   } else blob = new Blob([file.content], { type: file.mime })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
