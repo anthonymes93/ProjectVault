@@ -4,6 +4,11 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /projects/{projectId} {
       allow read, write: if true;
+
+      // Per-project files for the ProjectVault file manager.
+      match /files/{fileId} {
+        allow read, write: if true;
+      }
     }
   }
 }
