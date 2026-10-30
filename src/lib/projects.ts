@@ -12,6 +12,7 @@ import {
   where,
   getCountFromServer,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from './firebase'
 import type { Project, ProjectInput, ProjectStatus, ProjectCounts } from './types'
@@ -97,6 +98,13 @@ export async function updateProject(id: string, input: Partial<ProjectInput>): P
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  // Firestore does not cascade subcollections when deleting a parent document.
+  const files = await getDocs(collection(db, COL, id, 'files'))
+  for (let i = 0; i < files.docs.length; i += 450) {
+    const batch = writeBatch(db)
+    files.docs.slice(i, i + 450).forEach(file => batch.delete(file.ref))
+    await batch.commit()
+  }
   await deleteDoc(doc(db, COL, id))
 }
 
