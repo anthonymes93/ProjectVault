@@ -8,7 +8,6 @@ import {
   deleteDoc,
   serverTimestamp,
   query,
-  orderBy,
   where,
   getCountFromServer,
   Timestamp,
@@ -65,13 +64,13 @@ export async function getFocusedProjects(): Promise<Project[]> {
 
 // Server-side aggregate counts — no documents downloaded.
 export async function getProjectCounts(): Promise<ProjectCounts> {
-  const [totalSnap, archivedSnap] = await Promise.all([
+  const [totalSnap, ownerProjects] = await Promise.all([
     getCountFromServer(query(collection(db, COL), where('ownerUid', '==', requireUserId()))),
-    getCountFromServer(query(collection(db, COL), where('ownerUid', '==', requireUserId()))),
+    getDocs(query(collection(db, COL), where('ownerUid', '==', requireUserId()))),
   ])
   return {
     total: totalSnap.data().count,
-    archived: (await getDocs(query(collection(db, COL), where('ownerUid', '==', requireUserId())))).docs.filter(d => d.data().status === 'archived').length,
+    archived: ownerProjects.docs.filter(d => d.data().status === 'archived').length,
   }
 }
 
