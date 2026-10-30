@@ -48,9 +48,7 @@ export async function getProjects(): Promise<Project[]> {
   return snap.docs.map((d) => docToProject(d.id, d.data())).sort((a, b) => b.lastUpdated.toMillis() - a.lastUpdated.toMillis())
 }
 
-// Targeted query for Command Center — fetches only active/growth/watchlist.
-// Requires composite index: status ASC + lastUpdated DESC
-// See firestore.indexes.json for the index definition.
+// Load this account's projects and filter focus statuses client-side.
 export const FOCUS_STATUSES: ProjectStatus[] = ['active', 'growth', 'watchlist']
 
 export async function getFocusedProjects(): Promise<Project[]> {
@@ -59,7 +57,7 @@ export async function getFocusedProjects(): Promise<Project[]> {
     where('ownerUid', '==', requireUserId())
   )
   const snap = await getDocs(q)
-  return snap.docs.map((d) => docToProject(d.id, d.data()))
+  return snap.docs.map((d) => docToProject(d.id, d.data())).filter(p => FOCUS_STATUSES.includes(p.status)).sort((a,b) => b.lastUpdated.toMillis() - a.lastUpdated.toMillis())
 }
 
 // Server-side aggregate counts — no documents downloaded.
