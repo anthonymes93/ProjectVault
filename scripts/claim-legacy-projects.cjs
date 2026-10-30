@@ -4,18 +4,20 @@
 // npm install --no-save firebase-admin
 // node scripts/claim-legacy-projects.cjs YOUR_FIREBASE_UID
 // node scripts/claim-legacy-projects.cjs YOUR_FIREBASE_UID --apply
-const admin = require('firebase-admin')
+const { initializeApp, applicationDefault } = require('firebase-admin/app')
+const { getAuth } = require('firebase-admin/auth')
+const { getFirestore } = require('firebase-admin/firestore')
 const uid = process.argv[2]
 const apply = process.argv.includes('--apply')
 if (!uid || uid.startsWith('-') || !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
   console.error('Usage: GOOGLE_APPLICATION_CREDENTIALS=<service-account.json> node scripts/claim-legacy-projects.cjs FIREBASE_UID [--apply]')
   process.exit(1)
 }
-admin.initializeApp({ credential: admin.credential.applicationDefault() })
+initializeApp({ credential: applicationDefault() })
 async function main() {
-  const user = await admin.auth().getUser(uid)
+  const user = await getAuth().getUser(uid)
   console.log('Target Google account:', user.email || uid)
-  const db = admin.firestore()
+  const db = getFirestore()
   const snapshot = await db.collection('projects').get()
   const legacy = snapshot.docs.filter(doc => !doc.data().ownerUid)
   console.log('Legacy projects without an owner:', legacy.length)
