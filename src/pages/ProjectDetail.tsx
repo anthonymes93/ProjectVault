@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { ProjectFiles } from '../components/projects/ProjectFiles'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getProject, deleteProject, touchProject } from '../lib/projects'
 import { StatusBadge } from '../components/ui/StatusBadge'
@@ -141,6 +142,8 @@ export function ProjectDetail() {
           )}
         </div>
       </div>
+
+      <div className="mb-6"><ProjectFiles projectId={project.id} /></div>
 
       <div className="grid grid-cols-3 gap-6">
         {/* Main column */}

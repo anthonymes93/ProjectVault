@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppProvider } from './contexts/AppContext'
+import { AuthGate } from './components/layout/AuthGate'
 import { AppLayout } from './components/layout/AppLayout'
 import { CommandCenter } from './pages/CommandCenter'
 import { AllProjects } from './pages/AllProjects'
@@ -10,6 +11,7 @@ import { ImportProjects } from './pages/ImportProjects'
 export default function App() {
   return (
     <AppProvider>
+      <AuthGate>
       <BrowserRouter>
         <Routes>
           <Route element={<AppLayout />}>
@@ -22,6 +24,7 @@ export default function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </AuthGate>
     </AppProvider>
   )
 }
